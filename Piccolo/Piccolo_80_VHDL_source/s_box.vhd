@@ -1,14 +1,14 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company: DCU / ECE Paris
+-- Engineer: Patrick BORE
 -- 
 -- Create Date: 30.06.2018 02:18:25
--- Design Name: 
+-- Design Name: Piccolo 4-bit bijective S-box
 -- Module Name: s_box - Behavioral
--- Project Name: 
+-- Project Name: Piccolo
 -- Target Devices: 
 -- Tool Versions: 
--- Description: 
+-- Description: Lookup table
 -- 
 -- Dependencies: 
 -- 
@@ -32,8 +32,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity s_box is
-    Port ( sw : in STD_LOGIC_VECTOR (3 downto 0);
-           led : out STD_LOGIC_VECTOR (3 downto 0));
+    Port ( input : in STD_LOGIC_VECTOR (3 downto 0);
+           output : out STD_LOGIC_VECTOR (3 downto 0));
 end s_box;
 
 architecture Behavioral of s_box is
@@ -49,18 +49,19 @@ signal o3 : std_logic;
 
 begin
 
-a<= sw(2) nor sw(3);
-o3 <= sw(0) xor a;
-b <= sw(1) nor sw(2);
-o2 <= b xor sw(3);
-c <= sw(1) nor o3;
-o1 <= c xnor sw(2);
+--logic gate implementin the lookup table as presented in the piccolo description
+a<= input(2) nor input(3);
+o3 <= input(0) xor a;
+b <= input(1) nor input(2);
+o2 <= b xor input(3);
+c <= input(1) nor o3;
+o1 <= c xnor input(2);
 d <= o2 nor o3;
-o0 <= d xor sw(1);
+o0 <= d xor input(1);
 
-led(0) <= o0;
-led(1) <= o1;
-led(2) <= o2;
-led(3) <= o3;
+output(0) <= o0;
+output(1) <= o1;
+output(2) <= o2;
+output(3) <= o3;
 
 end Behavioral;

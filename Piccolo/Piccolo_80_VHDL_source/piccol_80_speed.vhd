@@ -59,7 +59,7 @@ signal wk1 : STD_LOGIC_VECTOR (15 downto 0);
 signal wk2 : STD_LOGIC_VECTOR (15 downto 0);
 signal wk3 : STD_LOGIC_VECTOR (15 downto 0);
 
-component key_scheduling is
+component key_scheduling_linear is
     Port ( key : in STD_LOGIC_VECTOR (79 downto 0);
            rk0 : out STD_LOGIC_VECTOR (15 downto 0);
            rk1 : out STD_LOGIC_VECTOR (15 downto 0);
@@ -127,11 +127,20 @@ component f_box is
 end component;
 begin
 
-    key_sch_80 : key_scheduling port map (key,rk(0),rk(1),rk(2),rk(3),rk(4),rk(5),rk(6),rk(7),rk(8),rk(9),rk(10),
+	-- Mapping the key scheduler to have all the needed key (key_scheduling_linear.vhd)
+    key_sch_80 : key_scheduling_linear port map (key,rk(0),rk(1),rk(2),rk(3),rk(4),rk(5),rk(6),rk(7),rk(8),rk(9),rk(10),
     rk(11),rk(12),rk(13),rk(14),rk(15),rk(16),rk(17),rk(18),rk(19),rk(20),rk(21),rk(22),rk(23),rk(24),rk(25),rk(26),
     rk(27),rk(28),rk(29),rk(30),rk(31),rk(32),rk(33),rk(34),rk(35),rk(36),rk(37),rk(38),rk(39),rk(40),rk(41),rk(42),
     rk(43),rk(44),rk(45),rk(46),rk(47),rk(48),rk(49),encrypt,wk0,wk1,wk2,wk3);
     
+	-- 1st round : so introduction of the whitening keys
+	-- a,b,c and d are the 16bits subdivision before the round permutation
+	-- X is the concatenation of a,b,c and d
+	-- the input for this round is the input data block (64 bits)
+	-- Y is the state of the 64 bit data after the full round
+	-- fa and fc is just a and c after going threw the f function
+	-- each round have 2 implementation of the F function (f_box.vhd) 
+	-- and 1 implementation of the Round Permutation (Round_permutation.vhd)
     a(0) <= data(63 downto 48) xor wk0;
     F0_a : f_box port map (a(0),fa(0));
     b(0) <= data(47 downto 32) xor fa(0) xor rk(0);
@@ -141,6 +150,14 @@ begin
     X(0) <= a(0)&b(0)&c(0)&d(0);
     RP0: Round_permutation port map(X(0),Y(0));
     
+	-- nth round 
+	-- a,b,c and d are the 16bits subdivision before the round permutation
+	-- X is the concatenation of a,b,c and d
+	-- Y(n-1) is the state of the 64 bit data before the full round
+	-- Y(n) is the state of the 64 bit data after the full round
+	-- fa and fc is just a and c after going threw the f function
+	-- each round have 2 implementation of the F function (f_box.vhd) 
+	-- and 1 implementation of the Round Permutation (Round_permutation.vhd)
     a(1) <= Y(0)(63 downto 48);
     F1_a : f_box port map (a(1),fa(1));
     b(1) <= Y(0)(47 downto 32) xor fa(1) xor rk(2);
@@ -347,7 +364,16 @@ begin
     d(23) <= Y(22)(15 downto 0) xor fc(23) xor rk(47);
     X(23) <= a(23)&b(23)&c(23)&d(23);
     RP23: Round_permutation port map(X(23),Y(23));
-    
+	
+    -- 25th/last round : so introduction of the whitening keys again
+	-- a,b,c and d are the 16bits subdivision before the round permutation
+	-- X is the concatenation of a,b,c and d 
+	-- Y(n-1) is the state of the 64 bit data before the full round
+	-- fa and fc is just a and c after going threw the f function
+	-- each round have 2 implementation of the F function (f_box.vhd) 
+	-- NO implementation of the Round Permutation (Round_permutation.vhd)
+	-- instead the output before the whitening keys is X 
+	-- cipher is the final output 64bits block encrypted
     a(24) <= Y(23)(63 downto 48);
     F24_a : f_box port map (a(24),fa(24));
     b(24) <= Y(23)(47 downto 32) xor fa(24) xor rk(48);

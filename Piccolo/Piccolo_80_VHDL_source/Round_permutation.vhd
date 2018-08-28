@@ -1,11 +1,11 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company: DCU / ECE Paris
+-- Engineer: Patrick BORE
 -- 
 -- Create Date: 02.07.2018 21:10:08
--- Design Name: 
+-- Design Name: Piccolo's Round Permutation
 -- Module Name: Round_permutation - Behavioral
--- Project Name: 
+-- Project Name: Piccolo
 -- Target Devices: 
 -- Tool Versions: 
 -- Description: 
@@ -38,7 +38,7 @@ end Round_permutation;
 
 architecture Behavioral of Round_permutation is
 
-begin
+begin -- simple reorganisation of the bits order
 
 o(7 downto 0)<=i(23 downto 16);
 o(15 downto 8)<=i(63 downto 56);

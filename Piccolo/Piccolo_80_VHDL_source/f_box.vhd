@@ -1,11 +1,11 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company: DCU / ECE Paris
+-- Engineer: Patrick BORE
 -- 
 -- Create Date: 30.06.2018 06:09:01
--- Design Name: 
+-- Design Name: Piccolo F function
 -- Module Name: f_box - Behavioral
--- Project Name: 
+-- Project Name: Piccolo
 -- Target Devices: 
 -- Tool Versions: 
 -- Description: 
@@ -49,22 +49,25 @@ component m_box is
             o3 : out STD_LOGIC_VECTOR (3 downto 0));
 end component;
 component s_box is 
-    Port ( sw : in STD_LOGIC_VECTOR (3 downto 0);
-           led : out STD_LOGIC_VECTOR (3 downto 0));
+    Port ( input : in STD_LOGIC_VECTOR (3 downto 0);
+           output : out STD_LOGIC_VECTOR (3 downto 0));
 end component;
 
-signal avant : STD_LOGIC_VECTOR (15 downto 0);
-signal apres : STD_LOGIC_VECTOR (15 downto 0);
+signal avant : STD_LOGIC_VECTOR (15 downto 0); -- 16bits before M (Diffusion Matrice)
+signal apres : STD_LOGIC_VECTOR (15 downto 0); -- 16bits after M (Diffusion Matrice)
 begin
 
+	-- First layer of S Box (s_box.vhd)
     s_box_3 : s_box port map (i(3 downto 0),avant(3 downto 0));
     s_box_2 : s_box port map (i(7 downto 4),avant(7 downto 4));
     s_box_1 : s_box port map (i(11 downto 8),avant(11 downto 8));
     s_box_0 : s_box port map (i(15 downto 12),avant(15 downto 12));
     
+	-- Diffusion Matrice (m_box.vhd)
     M : m_box port map (avant(15 downto 12),avant(11 downto 8),avant(7 downto 4),avant(3 downto 0),
         apres(15 downto 12),apres(11 downto 8),apres(7 downto 4),apres(3 downto 0));
         
+	-- Second layer of S Box (s_box.vhd)
     s_box_4 : s_box port map (apres(3 downto 0),o(3 downto 0));
     s_box_5 : s_box port map (apres(7 downto 4),o(7 downto 4));
     s_box_6 : s_box port map (apres(11 downto 8),o(11 downto 8));

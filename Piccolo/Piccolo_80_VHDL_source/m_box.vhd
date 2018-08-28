@@ -1,11 +1,11 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
+-- Company: DCU / ECE Paris
+-- Engineer: Patrick BORE
 -- 
 -- Create Date: 30.06.2018 05:51:44
--- Design Name: 
+-- Design Name: Piccolo Diffusion Matrice
 -- Module Name: m_box - Behavioral
--- Project Name: 
+-- Project Name: Piccolo
 -- Target Devices: 
 -- Tool Versions: 
 -- Description: 
@@ -44,35 +44,40 @@ end m_box;
 
 architecture Behavioral of m_box is
 
-signal t_0 : STD_LOGIC_VECTOR (4 downto 0);
-signal t_1 : STD_LOGIC_VECTOR (4 downto 0);
-signal t_2 : STD_LOGIC_VECTOR (4 downto 0);
-signal t_3 : STD_LOGIC_VECTOR (4 downto 0);
 signal d_0 : STD_LOGIC_VECTOR (4 downto 0);
 signal d_1 : STD_LOGIC_VECTOR (4 downto 0);
 signal d_2 : STD_LOGIC_VECTOR (4 downto 0);
 signal d_3 : STD_LOGIC_VECTOR (4 downto 0);
+signal t_0 : STD_LOGIC_VECTOR (4 downto 0);
+signal t_1 : STD_LOGIC_VECTOR (4 downto 0);
+signal t_2 : STD_LOGIC_VECTOR (4 downto 0);
+signal t_3 : STD_LOGIC_VECTOR (4 downto 0);
 signal sum_0 : STD_LOGIC_VECTOR (4 downto 0);
 signal sum_1 : STD_LOGIC_VECTOR (4 downto 0);
 signal sum_2 : STD_LOGIC_VECTOR (4 downto 0);
 signal sum_3 : STD_LOGIC_VECTOR (4 downto 0);
 
 begin
-t_0 <= (s0 & '0') xor ('0' & s0);
-t_1 <= (s1 & '0') xor ('0' & s1);
-t_2 <= (s2 & '0') xor ('0' & s2);
-t_3 <= (s3 & '0') xor ('0' & s3);
 
+-- generating the 2*input for each input in the GF
 d_0 <= s0 & '0';
 d_1 <= s1 & '0';
 d_2 <= s2 & '0';
 d_3 <= s3 & '0';
 
+-- generating the 3*input for each input in the GF wich simple down to 2*input + input or in GF + is a xor
+t_0 <= (s0 & '0') xor ('0' & s0);
+t_1 <= (s1 & '0') xor ('0' & s1);
+t_2 <= (s2 & '0') xor ('0' & s2);
+t_3 <= (s3 & '0') xor ('0' & s3);
+
+-- generating the GF sum  before the irreductible polynome
 sum_0 <= d_0 xor t_1 xor ('0' & s2) xor ('0' & s3);
 sum_1 <= ('0' & s0) xor d_1 xor t_2 xor ('0' & s3);
 sum_2 <= ('0' & s0) xor ('0' & s1) xor d_2 xor t_3;
 sum_3 <= t_0 xor ('0' & s1) xor ('0' & s2) xor d_3;
 
+-- Usiging the polynome when needded before outputing the result
 o0 <= sum_0(3 downto 0) when sum_0(4) = '0' else
       sum_0(3 downto 0) xor "0011";
 o1 <= sum_1(3 downto 0) when sum_1(4) = '0' else
